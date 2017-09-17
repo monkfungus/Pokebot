@@ -1,6 +1,5 @@
 /* 
- *
- *
+ * Basic skeleton of functionality. 
  *
  */
 
@@ -65,8 +64,10 @@ public class Pokebot {
 
 	/*
 	 * getStatus checks and updates status
-	 *  - modifies class variables getStatusSuccess and status
-	 *
+	 * Modifies class variables getStatusSuccess and status
+	 * In future, will actually send a HTTP GET request to Cisco Spark
+	 * checking for @mentions in Spark room. Will update getStatus and
+	 * status accordingly. Will return a boolean and have exception handling.
 	 */
 	private static void getStatus() {
 		
@@ -77,42 +78,11 @@ public class Pokebot {
 
 
 	/*
-	 *	sendPoke 
-	 *	in future, will return a boolean and have exception handling etc
+	 *	sendPoke will send a poke message to Cisco Spark
+	 * 	will return true if successful, false if not
 	 */
 	private static void sendPoke() {
 		System.out.println("Poke sent.");
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
