@@ -1,6 +1,6 @@
 # File types to ignore:
 *.class
-
+*.txt
 
 # Files to ignore:
-Test.java
+*Test.java
