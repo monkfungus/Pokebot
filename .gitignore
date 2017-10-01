@@ -1,2 +1,6 @@
 # File types to ignore:
 *.class
+
+
+# Files to ignore:
+test.java
