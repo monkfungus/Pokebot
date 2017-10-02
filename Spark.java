@@ -3,10 +3,11 @@
  * and sending a message to Spark
  */
 
+import java.io.*;
 import java.net.*;
-import java.net.ssl.HttpsURLConnection;
 import java.util.*;
 import java.util.regex.Pattern;
+import javax.net.ssl.HttpsURLConnection;
 
 public class Spark {
 
@@ -41,7 +42,7 @@ public class Spark {
 									+ "&mentionedPeoplpe=me";
 
 		URL urlObj = new URL(urlString);
-		HttpsURLConnection con = (HttpsUrlConnection) urlObj.openConnection();
+		HttpsURLConnection con = (HttpsURLConnection) urlObj.openConnection();
 
 		con.setRequestMethod("GET");
 		con.setRequestProperty("content-type", "application/json");
@@ -57,9 +58,11 @@ public class Spark {
 
 	}
 
-	// sends a given message as the bot
-	public boolean sendMessage() {
-
+	/*
+	 * Sends a given message to set spark room
+	 */
+	public void sendMessage(String msg) {
+		// send some message using HTTP POST
 	}
 	
 	/*
