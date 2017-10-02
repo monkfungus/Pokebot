@@ -18,14 +18,13 @@ public class Spark {
 	// base url GET and POST requests build on
 	private String baseURL = "https://api.ciscospark.com/v1/messages";
 
-	public void Spark(String[] ids) {
+	// constructor
+	public Spark(String ids[]) {
 
 		roomID = ids[0];
 		botID = ids[1];
 
 		auth = "Bearer " + botID;
-
-
 	}
 
 	
