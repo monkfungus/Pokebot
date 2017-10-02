@@ -10,6 +10,8 @@ import java.util.Scanner;
 import java.io.*;
 
 public class Pokebot {
+
+	private Spark spark;
 	
 	public static void main(String args[]) {
 
@@ -28,7 +30,8 @@ public class Pokebot {
 			ids[1] = "this bot is not the exist";
 		}
 
-		Spark spark = new Spark(ids);
+		// initialise spark with ids
+		spark = new Spark(ids);
 
 		Scanner scan = new Scanner(System.in);
 
@@ -84,6 +87,7 @@ public class Pokebot {
 	 */
 	private static boolean getStatus() {
 
+		String last = spark.getLastMessage();
 		// temporary default
 		return true;
 	}
