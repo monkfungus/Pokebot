@@ -38,7 +38,7 @@ public class Spark {
 		String lastMessage;
 
 		// will get the last message from the roomID that the bot is mentioned in
-		String urlString = baseURL + "?" + "roomId=" + roomID + "&mentionedPeoplpe=me"
+		String urlString = baseURL + "?" + "roomId=" + roomID + "&mentionedPeople=me"
 						 + "&max=1";
 
 		URL urlObj = new URL(urlString);
