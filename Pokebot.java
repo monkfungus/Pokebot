@@ -11,7 +11,7 @@ import java.io.*;
 
 public class Pokebot {
 
-	private Spark spark;
+	private static Spark spark;
 	
 	public static void main(String args[]) {
 
@@ -87,7 +87,12 @@ public class Pokebot {
 	 */
 	private static boolean getStatus() {
 
-		String last = spark.getLastMessage();
+		try {
+			String last = spark.getLastMessage();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
 		// temporary default
 		return true;
 	}
