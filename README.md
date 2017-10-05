@@ -9,4 +9,4 @@ The physical Pokebots will have two caricature style figures that will display t
 
 Ideally also the two bots will be super simple to plug and play, with an LCD screen to display a menu and some input buttons for text/selection features to allow someone to connect it to a new wifi network and test the connection. 
 
-Cisco Spark was picked as the link between the bots as I did a bit of work with Spark at a Cisco Jam event at the start of this year and copped they allow you to have bots, it's also very user friendly and should allow both me and the other person with a Pokebot (shewhoshallnotbenamed) to see whats happening with the bots. 
+Cisco Spark was picked as the link between the bots as I did a bit of work with Spark at a Cisco Jam event at the start of this year and copped they allow you to have bots, it's also very user friendly and should allow both me and the other person with a Pokebot (shewhoshallnotbenamed) to see what's happening with the bots. 
