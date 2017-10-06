@@ -88,13 +88,49 @@ public class Pokebot {
 	private static boolean getStatus() {
 
 		try {
-			String last = spark.getLastMessage();
+			
+			String pairs[] = spark.getLastMessage().split(",");
+
+			// get message pair - assuming it'll always be 3 heh
+			String message = pairs[3];
+			
+			// remove excess shtuff from message
+			message = message.replace(":", "");
+			message = message.replace("text", "");
+			message = message.replace("\"", "");
+			
+			// split message into the two parts expected
+			// - [mentionedBot, command]
+			String msgBits[] = message.split(" ", 2);
+			
+
+			// set command to last bit of message
+			// should be "get poked" or "get poking"
+			String command = msgBits[1];
+
+			if (command.equals("get poked")) 
+			{
+				return true;
+			}
+			else if (command.equals("get poking")) 
+			{
+				return false;
+			}
+			else 
+			{
+				System.out.println("invalid message");
+				return false;
+			}
+
+
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 
-		// temporary default
-		return true;
+		// if method gets to here just return false - I need to 
+		// do solid handling of unexpected stuff in future version
+		System.out.println("setting default status as false");
+		return false;
 	}
 
 
