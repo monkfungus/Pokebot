@@ -18,6 +18,8 @@ public class Spark {
 	// base url GET and POST requests build on
 	private String baseURL = "https://api.ciscospark.com/v1/messages";
 
+	private String charset = "utf-8";
+
 	// constructor
 	public Spark(String ids[]) {
 
@@ -27,7 +29,16 @@ public class Spark {
 		auth = "Bearer " + botID;
 	}
 
-	
+/*
+	// constructor 2.0
+	public Spark(String rID, String bID) {
+
+		roomID = rID;
+		botID = bID;
+
+		auth = "Bearer " + botID;
+	}
+*/	
 	/*
 	 * Returns last(most recent) message the bot was tagged in - bots can 
 	 * only see messages they are tagged in. 
@@ -58,10 +69,36 @@ public class Spark {
 	}
 
 	/*
-	 * Sends a given message to set spark room
+	 * Sends given message (passed in markdown) to room
 	 */
-	public void sendMessage(String msg) {
+	public void sendMessage(String msg) throws MalformedURLException, IOException {
 		// send some message using HTTP POST
+
+		//String urlString = baseURL + "?" + "roomId=" + roomID + "&markdown:" + msg;
+		//String urlString = baseURL + "?" + "roomId=" + roomID + "&markdown=" + msg;
+
+		// build query
+		msg = msg.replace(" ", "%20");
+		String query = "roomId=" + roomID + "&markdown=" + msg;
+		System.out.println("query: " + query);
+
+		URL urlObj = new URL(baseURL + "?" + query);
+		System.out.println("full url: " + baseURL + "?" + query);
+
+		HttpsURLConnection con = (HttpsURLConnection) urlObj.openConnection();
+
+		con.setDoOutput(true); // sets as POST
+		con.setRequestProperty("content-type", "application/x-www-form-urlencoded;charset="
+								 + charset);
+		con.setRequestProperty("authorization", "Bearer " + botID);
+
+		try (OutputStream out = con.getOutputStream()) {
+			out.write(query.getBytes(charset));
+		}
+
+		System.out.println("Respone code: " + con.getResponseCode());
+		//System.out.println("Response:" + con.getReponse());
+
 	}
 	
 	/*

@@ -3,7 +3,7 @@
  * Reads details of the bot it controls and the room the bot
  * lives in from deets.txt
  * In deets.txt, format is as follows:
- * <roomID> , <botID>
+ * <roomID> , <botID>, <otherBotName>
  */
 
 import java.util.Scanner;
@@ -20,14 +20,18 @@ public class Pokebot {
 		String ids[];
 		boolean isPoked;
 
+
 		// read botID and roomID from deets.txt
 		try {
 			ids = getIDs("deets.txt");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-			ids = new String[2];
-			ids[0] = "deets.txt did not do a load";
-			ids[1] = "this bot is not the exist";
+			
+			// assign all ids values to null
+			ids = new String[3];
+			for (String id : ids) {
+				id = null;
+			}
 		}
 
 		// initialise spark with ids
@@ -35,11 +39,12 @@ public class Pokebot {
 
 		Scanner scan = new Scanner(System.in);
 
-
+		/*
 		System.out.println("=== Pokebot ===");
 		System.out.println();
 		System.out.println("Your room ID: " + ids[0]);
 		System.out.println("Your bot ID: " + ids[1]);
+		*/
 		System.out.println("Getting status ...");
 
 		isPoked = getStatus();
@@ -57,7 +62,7 @@ public class Pokebot {
 				if ( userInput.equals("y") == true ) 
 				{
 					System.out.println("sending poke ...");
-					sendPoke();
+					sendPoke(ids[2]);// pass otherBotName
 					validInput = true;
 				}
 				else if ( userInput.equals("n") == true ) 
@@ -89,8 +94,13 @@ public class Pokebot {
 
 		try {
 			
-			String pairs[] = spark.getLastMessage().split(",");
 
+			String pairs[] = spark.getLastMessage().split(",");
+/*
+			for (String pair : pairs) {
+				System.out.println(pair);
+			}
+*/
 			// get message pair - assuming it'll always be 3 heh
 			String message = pairs[3];
 			
@@ -138,14 +148,24 @@ public class Pokebot {
 	 *	sendPoke will send a poke message to Cisco Spark
 	 * 	will return true if successful, false if not
 	 */
-	private static void sendPoke() {
-		System.out.println("Poke sent.");
-	}
+	private static void sendPoke(String to) {
+		
+		String otherBotEmail = to+ "@sparkbot.io";
+		String msgMarkdown = "<@personEmail:" + otherBotEmail + "|" + to + "> get poked";
+		
+		System.out.println(msgMarkdown);
+		try {
+			spark.sendMessage(msgMarkdown);
+		} catch (Exception e) {
+			System.out.println("sendPoke failed :");
+			System.out.println(e.getMessage());
+		}
+	}	
 
 
 	/*
 	 * getIDs reads from given file, parses text and updates roomID and botID
-	 * variables. File is assumed to be of structure "<roomID> , <botID>"
+	 * variables. File is assumed to be of structure "<roomID> , <botID>, <otherBotName>"
 	 */
 	private static String[] getIDs(String filename) throws Exception{
 
