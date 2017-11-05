@@ -3,7 +3,7 @@
  * printing to terminal. Absolutely almost positively zero handling 
  * of anything abnormal - if something goes wrong gluck
  * In deets.txt, format is as follows:
- * <roomID> : <botID> : <otherBotName>
+ * <roomID> : <botID> : <botName> <otherBotName>
  */
 
 import java.util.Scanner;
@@ -15,6 +15,8 @@ public class Pokebot {
 	private static Spark spark;
 	private static boolean isPoked;
 	private static String botID;
+	private static String botName;
+	private static String botEmail;
 	private static String roomID;
 	private static String otherBotName;
 
@@ -201,7 +203,7 @@ public class Pokebot {
 
 	/*
 	 * getDeets reads details from deets.txt. deets.txt is assumed to
-	 * be of structure "<roomID> , <botID>, <otherBotName>"
+	 * be of structure "<roomID> : <botID> : <botName> : <otherBotName>"
 	 */
 	private static void getDeets() throws FileNotFoundException, IOException {
 
@@ -214,7 +216,7 @@ public class Pokebot {
 
 		System.out.println("chunks length: " + chunks.length );
 
-		if ( chunks.length != 3 ) 
+		if ( chunks.length != 4 ) 
 		{
 			System.out.println("Something has gone horribly astray");
 			System.out.println("deets.txt makes no sense, restart me when it does make sense");
@@ -224,8 +226,10 @@ public class Pokebot {
 		
 		roomID = chunks[0];
 		botID = chunks[1];
-		otherBotName = chunks[2];
+		botName = chunks[2];
+		otherBotName = chunks[3];
 
+		botEmail = botName + "@sparkbot.io";
 		br.close();
 		fr.close();
 
