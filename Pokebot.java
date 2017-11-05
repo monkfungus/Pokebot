@@ -1,9 +1,9 @@
 /* 
- * Basic skeleton of functionality. 
- * Reads details of the bot it controls and the room the bot
- * lives in from deets.txt
+ * Simple GUI - program keeps running in a loop,
+ * printing to terminal. Absolutely almost positively zero handling 
+ * of anything abnormal - if something goes wrong gluck
  * In deets.txt, format is as follows:
- * <roomID> , <botID>
+ * <roomID> : <botID> : <otherBotName>
  */
 
 import java.util.Scanner;
@@ -11,81 +11,116 @@ import java.io.*;
 
 public class Pokebot {
 
+
 	private static Spark spark;
+	private static boolean isPoked;
+	private static String botID;
+	private static String roomID;
+	private static String otherBotName;
+
 	
-	public static void main(String args[]) {
+	public static void main( String args[] ) {
 
-		boolean validInput;
-		String userInput;
-		String ids[];
-		boolean isPoked;
-
-		// read botID and roomID from deets.txt
-		try {
-			ids = getIDs("deets.txt");
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			ids = new String[2];
-			ids[0] = "deets.txt did not do a load";
-			ids[1] = "this bot is not the exist";
-		}
-
-		// initialise spark with ids
-		spark = new Spark(ids);
-
+		boolean validIn;
 		Scanner scan = new Scanner(System.in);
+		String input;
 
 
-		System.out.println("=== Pokebot ===");
-		System.out.println();
-		System.out.println("Your room ID: " + ids[0]);
-		System.out.println("Your bot ID: " + ids[1]);
-		System.out.println("Getting status ...");
-
-		isPoked = getStatus();
-
-		if (isPoked == true) 
+		// initialise IDs and otherBotName from deets.txt
+		System.out.println("Getting le deets ..");
+		try 
 		{
-			System.out.println("You are poked");
-			validInput = false; // force while to start
+			getDeets();		
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("getDeets threw exception: " + e.getMessage());
+			System.out.println("re-start me when u fix deets ..");
+			System.exit(1);
+		}	
+		
 
-			while (validInput == false) 
+		// initialise Spark
+		System.out.println("Prepping messages in bottles ..");
+		spark = new Spark( roomID, botID );
+
+		// getting status
+		getStatus();
+
+		System.out.println();
+		System.out.println("Beginning the never-ending poking!");
+		System.out.println();
+		// while loop that just keeps on going..
+		// - this is kinda like an embedded yoke isn't it?
+		while ( true ) 
+		{
+
+			if ( isPoked == true ) 
 			{
-				System.out.println("Poke back? (y/n)");
-				userInput = scan.nextLine();
+				System.out.printf("%nYou is poked - poke back? ");
 
-				if ( userInput.equals("y") == true ) 
+				validIn = false;
+				while ( validIn == false ) 
 				{
-					System.out.println("sending poke ...");
-					sendPoke();
-					validInput = true;
-				}
-				else if ( userInput.equals("n") == true ) 
+					input = scan.nextLine();
+
+					if ( (input.equals("y") == true) | (input.equals("Y") == true) ) 
+					{
+						sendPoke();
+						
+						System.out.println("You poked back!");
+
+						isPoked = false; // update status
+						validIn = true; // exits input while
+					}
+					else if ( (input.equals("n") == true) | (input.equals("N") == true) )
+					{
+						System.out.println("Don't be such a dry shite");
+						System.out.print("TYPE Y TO POKE BACK U TOE ");
+					}
+					else 
+					{
+						System.out.println("try maybe i dunno like type something THIS CODE CAN UNDERSTAND U SPANNER");
+						System.out.print("like maybe say y or n or some such YANO LIKE");
+					}
+				}// end input while
+			}
+			else // isPoked must be false => am poking 
+			{
+				try // this is for the Thread.sleep() yoke
 				{
-					System.out.println("doing absolutely nothing about being poked");
-					validInput = true;
+					System.out.println("You is poking - not for long ..");
+					System.out.printf("Refreshing ");
+					Thread.sleep(500);
+					System.out.printf(". ");
+					Thread.sleep(500);
+					System.out.printf(". ");
+					Thread.sleep(500);
+					System.out.printf(". %n");
+					Thread.sleep(500);
 				}
-				else {
-					System.out.println("press \"y\" or \"n\" or leave u goat");
-					validInput = false;
+				catch ( InterruptedException e ) 
+				{
+					System.out.println("Sleeping interrupted ..");
+					System.out.println(e.getMessage());
+					System.out.println("Exiting ..");
+					System.exit(1);
 				}
 			}
-		}
-		else  {
-			System.out.println("You are poking");
-		}
-		System.out.println();		
+
+		}// end embedded style while		
 
 	}// end main
 
 
 	/*
-	 * getStatus gets and updates Status
-	 * Actually calls getLastMessage from spark and parses last message
+	 * getStatus checks status of poking and updates isPoked accordingly
+	 * Calls getLastMessage from spark and parses last message
 	 * to get the actual text of the last message this bot was tagged in.
-	 * Returns true if poked, false if not poked
+	 * Returns true if poked, false if not poked. Gets a response in JSON 
+	 * format, I just parse it using text methods
 	 */
-	private static boolean getStatus() {
+	private static void getStatus() {
 
 		try {
 			
@@ -94,7 +129,7 @@ public class Pokebot {
 			// get message pair - assuming it'll always be 3 heh
 			String message = pairs[3];
 			
-			// remove excess shtuff from message
+			// remove excess shtuff from message pair
 			message = message.replace(":", "");
 			message = message.replace("text", "");
 			message = message.replace("\"", "");
@@ -110,55 +145,90 @@ public class Pokebot {
 
 			if (command.equals("get poked")) 
 			{
-				return true;
+				isPoked = true;
 			}
 			else if (command.equals("get poking")) 
 			{
-				return false;
+				isPoked = false;
 			}
 			else 
 			{
-				System.out.println("invalid message");
-				return false;
+				// again, my lazy but super smarts handling of stuff
+				System.out.println("getStatus can't actually do anything smart ..");
+				System.out.println("last message: ");
+				for ( String pair : pairs ) 
+				{
+					System.out.println(pair);
+				}
+				System.out.println("exiting ..");
+				System.exit(1);
 			}
-
-
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		{
 			System.out.println(e.getMessage());
+			System.out.println("exiting ..");
+			System.exit(1); // heh
 		}
-
-		// if method gets to here just return false - I need to 
-		// do solid handling of unexpected stuff in future version
-		System.out.println("setting default status as false");
-		return false;
-	}
+		
+	}// end getStatus
 
 
 	/*
-	 *	sendPoke will send a poke message to Cisco Spark
-	 * 	will return true if successful, false if not
+	 * sendPoke will send a poke message to Cisco Spark
+	 * Sends it in markdown so the tagging yoke works
 	 */
 	private static void sendPoke() {
-		System.out.println("Poke sent.");
-	}
+		
+		String otherBotEmail = otherBotName  + "@sparkbot.io";
+		String msgMarkdown = "<@personEmail:" + otherBotEmail + "|" 
+							+ otherBotName + "> get poked";
+		
+		try 
+		{
+			spark.sendMessage(msgMarkdown);
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("sendPoke failed :");
+			System.out.println(e.getMessage());
+			System.out.println("Exiting ..");
+			System.exit(1);
+		}
+
+	}// end sendPoke
 
 
 	/*
-	 * getIDs reads from given file, parses text and updates roomID and botID
-	 * variables. File is assumed to be of structure "<roomID> , <botID>"
+	 * getDeets reads details from deets.txt. deets.txt is assumed to
+	 * be of structure "<roomID> , <botID>, <otherBotName>"
 	 */
-	private static String[] getIDs(String filename) throws Exception{
+	private static void getDeets() throws FileNotFoundException, IOException {
 
-		String[] toReturn;
+		String filename = "deets.txt";
 
 		FileReader fr = new FileReader(filename);
 		BufferedReader br = new BufferedReader(fr);
 
-		//line = br.readLine();
+		String[] chunks = br.readLine().split(" : ");
 
-		toReturn = br.readLine().split(" , ");
+		System.out.println("chunks length: " + chunks.length );
 
-		return toReturn;
+		if ( chunks.length != 3 ) 
+		{
+			System.out.println("Something has gone horribly astray");
+			System.out.println("deets.txt makes no sense, restart me when it does make sense");
+			System.out.println("throwing in the towel ..");
+			System.exit(1);
+		}
 		
-	}
-}
+		roomID = chunks[0];
+		botID = chunks[1];
+		otherBotName = chunks[2];
+
+		br.close();
+		fr.close();
+
+	}// end getDeets
+
+}// end everything
