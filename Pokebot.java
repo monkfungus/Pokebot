@@ -41,7 +41,7 @@ public class Pokebot {
 			System.exit(1);
 		}	
 		
-
+		System.out.println("You are " + botName);
 		// initialise Spark
 		System.out.println("Prepping messages in bottles ..");
 		spark = new Spark( roomID, botID );
@@ -136,34 +136,82 @@ public class Pokebot {
 			message = message.replace("text", "");
 			message = message.replace("\"", "");
 			
-			// split message into the two parts expected
-			// - [mentionedBot, command]
-			String msgBits[] = message.split(" ", 2);
+			// split message into three two parts expected
+			// should be of the format:
+			// - [@thisBot, command, @sendingBot]
+			// e.g. "@thisBotName get poked @sendingBotName"
+			String msgBits[] = message.split(" ");
 			
-
-			// set command to last bit of message
-			// should be "get poked" or "get poking"
-			String command = msgBits[1];
-
-			if (command.equals("get poked")) 
-			{
-				isPoked = true;
-			}
-			else if (command.equals("get poking")) 
-			{
-				isPoked = false;
-			}
-			else 
-			{
-				// again, my lazy but super smarts handling of stuff
-				System.out.println("getStatus can't actually do anything smart ..");
-				System.out.println("last message: ");
-				for ( String pair : pairs ) 
-				{
-					System.out.println(pair);
-				}
-				System.out.println("exiting ..");
+			// checking for unexpected message
+			if (msgBits.length != 4) {
+				System.out.println("Unexpected message length of "
+							+ msgBits.length + " received.");
+				System.out.println("Message received: " + message);
 				System.exit(1);
+			}
+			else if (!(msgBits[0].equals(botName)) && !(msgBits[0].equals(otherBotName))) {
+				System.out.println("Unexpected bot tagged at start of message");
+				System.out.println("Expected " + botName + " or " + otherBotName);
+				System.out.println("Message received: " + message);
+				System.exit(1);
+			}
+			else if (!msgBits[3].equals(otherBotName) && !msgBits[3].equals(otherBotName)) {
+				System.out.println("Unexpected bot name at end of message");
+				System.out.println("Expected " + botName + " or " + otherBotName);
+				System.out.println("Message received: " + message);
+				System.exit(1);
+			}
+
+			System.out.println(message);
+
+			// re-assemble command from two middle words
+			String command = msgBits[1] + " " + msgBits[2];
+
+			if (msgBits[0].equals(botName) && msgBits[3].equals(otherBotName)) {
+
+				if (command.equals("get poked")) 
+				{
+					isPoked = true;
+				}
+				else if (command.equals("get poking")) 
+				{
+					isPoked = false;
+				}
+				else 
+				{
+					// again, my lazy but super smarts handling of stuff
+					System.out.println("getStatus can't actually do anything smart ..");
+					System.out.println("last message: ");
+					for ( String pair : pairs ) 
+					{
+						System.out.println(pair);
+					}
+					System.out.println("exiting ..");
+					System.exit(1);
+				}
+			}
+			else if (msgBits[0].equals(otherBotName) && msgBits[3].equals(botName)) {
+
+				if (command.equals("get poked")) 
+				{
+					isPoked = false;
+				}
+				else if (command.equals("get poking")) 
+				{
+					isPoked = true;
+				}
+				else 
+				{
+					// again, my lazy but super smarts handling of stuff
+					System.out.println("getStatus can't actually do anything smart ..");
+					System.out.println("last message: ");
+					for ( String pair : pairs ) 
+					{
+						System.out.println(pair);
+					}
+					System.out.println("exiting ..");
+					System.exit(1);
+				}
 			}
 		} 
 		catch (Exception e) 
@@ -183,9 +231,11 @@ public class Pokebot {
 	private static void sendPoke() {
 		
 		String otherBotEmail = otherBotName  + "@sparkbot.io";
-		String msgMarkdown = "<@personEmail:" + otherBotEmail + "|" 
-							+ otherBotName + "> get poked";
-		
+		String msgMarkdown = "<@personEmail:" + otherBotEmail 
+							+ "> get poked " + "<@personEmail:" 
+							+ botEmail + ">" ;
+		System.out.println("Markdown message to be sent: " 
+							+ msgMarkdown);
 		try 
 		{
 			spark.sendMessage(msgMarkdown);

@@ -62,8 +62,14 @@ public class Spark {
 	 */
 	public void sendMessage(String msg) throws Exception {
 		
-		// build query
+		// encode msg
 		msg = msg.replace(" ", "%20");
+		msg = msg.replace("<", "%3C");
+		msg = msg.replace(">", "%3E");
+		msg = msg.replace("@", "%40");
+		msg = msg.replace(":", "%3A");
+
+		// build query
 		String query = "roomId=" + roomID + "&markdown=" + msg;
 		
 
