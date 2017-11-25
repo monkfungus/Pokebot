@@ -3,7 +3,7 @@
  * printing to terminal. Absolutely almost positively zero handling 
  * of anything abnormal - if something goes wrong gluck
  * In deets.txt, format is as follows:
- * <roomID> : <botID> : <botName> <otherBotName>
+ * <roomID> : <botID> : <botName> : <otherBotName>
  */
 
 import java.util.Scanner;
@@ -46,17 +46,14 @@ public class Pokebot {
 		System.out.println("Prepping messages in bottles ..");
 		spark = new Spark( roomID, botID );
 
-		// getting status
-		getStatus();
-
 		System.out.println();
 		System.out.println("Beginning the never-ending poking!");
 		System.out.println();
 		// while loop that just keeps on going..
 		// - this is kinda like an embedded yoke isn't it?
 		while ( true ) 
-		{
-
+		{	
+			getStatus();
 			if ( isPoked == true ) 
 			{
 				System.out.printf("%nYou is poked - poke back? ");
@@ -155,7 +152,7 @@ public class Pokebot {
 				System.out.println("Message received: " + message);
 				System.exit(1);
 			}
-			else if (!msgBits[3].equals(otherBotName) && !msgBits[3].equals(otherBotName)) {
+			else if (!msgBits[3].equals(botName) && !msgBits[3].equals(otherBotName)) {
 				System.out.println("Unexpected bot name at end of message");
 				System.out.println("Expected " + botName + " or " + otherBotName);
 				System.out.println("Message received: " + message);
