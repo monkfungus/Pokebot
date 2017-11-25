@@ -9,7 +9,7 @@
 import java.util.Scanner;
 import java.io.*;
 
-public class Pokebot {
+public class Pokebot implements Runnable {
 
 	private static Spark spark;
 	private static boolean isPoked;
@@ -19,52 +19,61 @@ public class Pokebot {
 	private static String roomID;
 	private static String otherBotName;
 
+	// constructor
+	public Pokebot() {
+		try {
+			getDeets();
+		} catch (IOException e) {
+			System.out.println("Unable to load deets.txt: IOException");
+			e.printStackTrace();
+		}
+		System.out.println("Details of this bot:");
+		System.out.printf("roomID: %S\nbotID: %s\nbotName: %s\notherBotName: %s\n"
+							,roomID, botID, botName, otherBotName);
+		System.out.printf("Initialising veractor modulation feeds ... ");
+		spark = new Spark(roomID, botID);
+		System.out.println("done");
+		System.out.println();
+	}
+
+	// also constructor
+	public Pokebot(String roomID, String botID, String botName, String otherBotName) {
+		this.roomID = roomID;
+		this.botID = botID;
+		this.botName = botName;
+		this.otherBotName = otherBotName;
+
+		System.out.println("Details of this bot:");
+		System.out.printf("roomID: %S\n botID: %s\n botName: %s\n otherBotName: %s\n"
+							,roomID, botID, botName, otherBotName);
+		System.out.printf("Initialising veractor modulation feeds ... ");
+		spark = new Spark(roomID, botID);
+		System.out.println("done");
+		System.out.println();
+	}
+
 	
-	public static void main( String args[] ) {
-		
+	public void run() {
 		boolean validIn;
 		Scanner scan = new Scanner(System.in);
 		String input;
 
-		// initialise IDs and otherBotName from deets.txt
-		System.out.println("Getting le deets ..");
-		try {
-			getDeets();		
-		} 
-		catch (Exception e) {
-			System.out.println("getDeets threw exception: " + e.getMessage());
-			System.out.println("re-start me when u fix deets ..");
-			System.exit(1);
-		}	
-		
-		System.out.println("You are " + botName);
-		// initialise Spark
-		System.out.println("Prepping messages in bottles ..");
-		spark = new Spark( roomID, botID );
-
-		System.out.println();
-		System.out.println("Beginning the never-ending poking!");
-		System.out.println();
-		// while loop that just keeps on going..
-		// - this is kinda like an embedded yoke isn't it?
-		while ( true ) {	
+		// infinite while loop
+		while (true) {	
 			getStatus();
-			if ( isPoked == true ) {
-				System.out.printf("%nYou is poked - poke back? ");
-
+			if (isPoked == true) {
+				System.out.println("You is poked - poke back? ");
 				validIn = false;
-				while ( validIn == false ) {
+				while (validIn == false) {
 					input = scan.nextLine();
 
-					if ( (input.equals("y") == true) | (input.equals("Y") == true) ) {
+					if ((input.equals("y") == true) || (input.equals("Y") == true)) {
 						sendPoke();
-						
 						System.out.println("You poked back!");
-
-						isPoked = false; // update status
+						getStatus();
 						validIn = true; // exits input while
 					}
-					else if ( (input.equals("n") == true) | (input.equals("N") == true) ) {
+					else if ((input.equals("n") == true) || (input.equals("N") == true)) {
 						System.out.println("Don't be such a dry shite");
 						System.out.print("TYPE Y TO POKE BACK U TOE ");
 					}
@@ -75,26 +84,47 @@ public class Pokebot {
 				}// end input while
 			}
 			else { // isPoked must be false => am poking 
-				try {// this is for the Thread.sleep() yoke{
-					System.out.println("You is poking - not for long ..");
-					System.out.printf("Refreshing ");
-					Thread.sleep(500);
-					System.out.printf(". ");
-					Thread.sleep(500);
-					System.out.printf(". ");
-					Thread.sleep(500);
-					System.out.printf(". %n");
-					Thread.sleep(500);
-				}
-				catch ( InterruptedException e ) {
-					System.out.println("Sleeping interrupted ..");
-					System.out.println(e.getMessage());
-					System.out.println("Exiting ..");
-					System.exit(1);
-				}
+					System.out.println("You is poking");
+					// another possibly infinite while - for to keep checking status until poked
+					System.out.printf("Refreshing  ");
+					while (!isPoked) {
+						try {
+							for (int count = 0; count < 2; count++) {
+								System.out.printf("\b|");
+								Thread.sleep(200);
+								System.out.printf("\b/");
+								Thread.sleep(200);
+								System.out.printf("\b-");
+								Thread.sleep(200);
+								System.out.printf("\b\\");
+								Thread.sleep(200);
+								System.out.printf("\b|");
+								Thread.sleep(200);
+								System.out.printf("\b/");
+								Thread.sleep(200);
+								System.out.printf("\b-");
+								Thread.sleep(200);
+								System.out.printf("\b\\");
+								Thread.sleep(200);
+							}
+						}
+						catch ( InterruptedException e ) {
+							System.out.println("Sleeping interrupted");
+							System.out.println(e.getMessage());
+							System.out.println("Exiting ..");
+							scan.close();
+							System.exit(1);
+						}
+					}
 			}
 		}// end embedded style while		
-	}// end main
+	}
+
+
+	public static void main( String args[] ) {
+		Pokebot bot = new Pokebot();
+		bot.run();
+	}
 
 
 	/*
@@ -143,8 +173,6 @@ public class Pokebot {
 				System.exit(1);
 			}
 
-			System.out.println(message);
-
 			// re-assemble command from two middle words
 			String command = msgBits[1] + " " + msgBits[2];
 
@@ -161,8 +189,9 @@ public class Pokebot {
 					System.out.println("getStatus can't actually do anything smart ..");
 					System.out.println("last message: ");
 					for ( String pair : pairs ) {
-						System.out.println(pair);
+						System.out.printf("%s ", pair);
 					}
+					System.out.println();
 					System.out.println("exiting ..");
 					System.exit(1);
 				}
@@ -178,14 +207,16 @@ public class Pokebot {
 				else {
 					// again, my lazy but super smarts handling of stuff
 					System.out.println("getStatus can't actually do anything smart ..");
-					System.out.println("last message: ");
+					System.out.printf("last message: ");
 					for ( String pair : pairs ) {
-						System.out.println(pair);
+						System.out.printf("%s ", pair);
 					}
+					System.out.println();
 					System.out.println("exiting ..");
 					System.exit(1);
 				}
 			}
+			System.out.printf("Last message received: \"%s\"\n", message);
 		} 
 		catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -232,7 +263,7 @@ public class Pokebot {
 
 		String[] chunks = br.readLine().split(" : ");
 
-		System.out.println("chunks length: " + chunks.length );
+		//System.out.println("chunks length: " + chunks.length );
 
 		if ( chunks.length != 4 ) {
 			System.out.println("Something has gone horribly astray");
