@@ -11,21 +11,24 @@ import java.io.*;
 
 public class Pokebot implements Runnable {
 
-	private static Spark spark;
-	private static boolean isPoked;
-	private static String botID;
-	private static String botName;
-	private static String botEmail;
-	private static String roomID;
-	private static String otherBotName;
+	private Spark spark;
+	private boolean isPoked;
+	private String botID;
+	private String botName;
+	private String botEmail;
+	private String roomID;
+	private String otherBotName;
+	private String filename;
 
 	// constructor
 	public Pokebot() {
+		filename = "deets.txt";
 		try {
 			getDeets();
 		} catch (IOException e) {
-			System.out.println("Unable to load deets.txt: IOException");
+			System.out.printf("Unable to load file %s: IOException\n", filename);
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		System.out.println("Details of this bot:");
 		System.out.printf("roomID: %S\nbotID: %s\nbotName: %s\notherBotName: %s\n"
@@ -37,6 +40,25 @@ public class Pokebot implements Runnable {
 	}
 
 	// also constructor
+	public Pokebot(String filename) {
+		this.filename = filename;
+		try {
+			getDeets();
+		} catch (IOException e) {
+			System.out.printf("Unable to load file %s: IOException\n", filename);
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		System.out.println("Details of this bot:");
+		System.out.printf("roomID: %S\nbotID: %s\nbotName: %s\notherBotName: %s\n"
+							,roomID, botID, botName, otherBotName);
+		System.out.printf("Initialising veractor modulation feeds ... ");
+		spark = new Spark(roomID, botID);
+		System.out.println("done");
+		System.out.println();
+	}
+
+	// also also constructor
 	public Pokebot(String roomID, String botID, String botName, String otherBotName) {
 		this.roomID = roomID;
 		this.botID = botID;
@@ -89,7 +111,7 @@ public class Pokebot implements Runnable {
 					System.out.printf("Refreshing  ");
 					while (!isPoked) {
 						try {
-							for (int count = 0; count < 2; count++) {
+							for (int count = 0; count < 4; count++) {
 								System.out.printf("\b|");
 								Thread.sleep(200);
 								System.out.printf("\b/");
@@ -115,15 +137,25 @@ public class Pokebot implements Runnable {
 							scan.close();
 							System.exit(1);
 						}
+						getStatus();
 					}
 			}
 		}// end embedded style while		
 	}
 
 
-	public static void main( String args[] ) {
-		Pokebot bot = new Pokebot();
-		bot.run();
+	public static void main(String args[]) {
+		if (args.length == 0) {
+			Pokebot bot = new Pokebot();
+			bot.run();
+		}
+		else if (args.length == 1) {
+			Pokebot bot = new Pokebot(args[0]);
+			bot.run();
+		}
+		else {
+			System.out.printf("Usage: \"java Pokebot\" OR \"java Pokebot <deets file>\"\n");
+		}
 	}
 
 
@@ -134,7 +166,7 @@ public class Pokebot implements Runnable {
 	 * Returns true if poked, false if not poked. Gets a response in JSON 
 	 * format, I just parse it using text methods
 	 */
-	private static void getStatus() {
+	private void getStatus() {
 
 		try {
 			String pairs[] = spark.getLastMessage().split(",");
@@ -220,8 +252,7 @@ public class Pokebot implements Runnable {
 		} 
 		catch (Exception e) {
 			System.out.println(e.getMessage());
-			System.out.println("exiting ..");
-			System.exit(1); // heh
+			//System.exit(1); // heh
 		}
 	}// end getStatus
 
@@ -230,7 +261,7 @@ public class Pokebot implements Runnable {
 	 * sendPoke will send a poke message to Cisco Spark
 	 * Sends it in markdown so the tagging yoke works
 	 */
-	private static void sendPoke() {
+	private void sendPoke() {
 
 		String otherBotEmail = otherBotName  + "@sparkbot.io";
 		String msgMarkdown = "<@personEmail:" + otherBotEmail 
@@ -254,9 +285,7 @@ public class Pokebot implements Runnable {
 	 * getDeets reads details from deets.txt. deets.txt is assumed to
 	 * be of structure "<roomID> : <botID> : <botName> : <otherBotName>"
 	 */
-	private static void getDeets() throws FileNotFoundException, IOException {
-
-		String filename = "deets.txt";
+	private void getDeets() throws FileNotFoundException, IOException {
 
 		FileReader fr = new FileReader(filename);
 		BufferedReader br = new BufferedReader(fr);
