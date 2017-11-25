@@ -22,7 +22,6 @@ public class Spark {
 
 		roomID = rID;
 		botID = bID;
-
 		auth = "Bearer " + botID;
 	}
 	
@@ -53,8 +52,8 @@ public class Spark {
 		lastMessage = br.readLine();
 
 		return lastMessage;
-
 	}
+
 
 	/*
 	 * Sends given message (passed in markdown) to room through
@@ -88,9 +87,7 @@ public class Spark {
 		try (OutputStream out = con.getOutputStream()) {
 			out.write(query.getBytes(charset));
 		}
-
 		System.out.println("Respone code: " + con.getResponseCode());
-
 	}
 	
 	/*
@@ -104,6 +101,5 @@ public class Spark {
 		String items[] = in.split(Pattern.quote("},{"), 2);
 
 		return items[0];
-
 	}
 }	

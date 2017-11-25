@@ -11,7 +11,6 @@ import java.io.*;
 
 public class Pokebot {
 
-
 	private static Spark spark;
 	private static boolean isPoked;
 	private static String botID;
@@ -22,20 +21,17 @@ public class Pokebot {
 
 	
 	public static void main( String args[] ) {
-
+		
 		boolean validIn;
 		Scanner scan = new Scanner(System.in);
 		String input;
 
-
 		// initialise IDs and otherBotName from deets.txt
 		System.out.println("Getting le deets ..");
-		try 
-		{
+		try {
 			getDeets();		
 		} 
-		catch (Exception e) 
-		{
+		catch (Exception e) {
 			System.out.println("getDeets threw exception: " + e.getMessage());
 			System.out.println("re-start me when u fix deets ..");
 			System.exit(1);
@@ -51,20 +47,16 @@ public class Pokebot {
 		System.out.println();
 		// while loop that just keeps on going..
 		// - this is kinda like an embedded yoke isn't it?
-		while ( true ) 
-		{	
+		while ( true ) {	
 			getStatus();
-			if ( isPoked == true ) 
-			{
+			if ( isPoked == true ) {
 				System.out.printf("%nYou is poked - poke back? ");
 
 				validIn = false;
-				while ( validIn == false ) 
-				{
+				while ( validIn == false ) {
 					input = scan.nextLine();
 
-					if ( (input.equals("y") == true) | (input.equals("Y") == true) ) 
-					{
+					if ( (input.equals("y") == true) | (input.equals("Y") == true) ) {
 						sendPoke();
 						
 						System.out.println("You poked back!");
@@ -72,22 +64,18 @@ public class Pokebot {
 						isPoked = false; // update status
 						validIn = true; // exits input while
 					}
-					else if ( (input.equals("n") == true) | (input.equals("N") == true) )
-					{
+					else if ( (input.equals("n") == true) | (input.equals("N") == true) ) {
 						System.out.println("Don't be such a dry shite");
 						System.out.print("TYPE Y TO POKE BACK U TOE ");
 					}
-					else 
-					{
+					else {
 						System.out.println("try maybe i dunno like type something THIS CODE CAN UNDERSTAND U SPANNER");
 						System.out.print("like maybe say y or n or some such YANO LIKE");
 					}
 				}// end input while
 			}
-			else // isPoked must be false => am poking 
-			{
-				try // this is for the Thread.sleep() yoke
-				{
+			else { // isPoked must be false => am poking 
+				try {// this is for the Thread.sleep() yoke{
 					System.out.println("You is poking - not for long ..");
 					System.out.printf("Refreshing ");
 					Thread.sleep(500);
@@ -98,17 +86,14 @@ public class Pokebot {
 					System.out.printf(". %n");
 					Thread.sleep(500);
 				}
-				catch ( InterruptedException e ) 
-				{
+				catch ( InterruptedException e ) {
 					System.out.println("Sleeping interrupted ..");
 					System.out.println(e.getMessage());
 					System.out.println("Exiting ..");
 					System.exit(1);
 				}
 			}
-
 		}// end embedded style while		
-
 	}// end main
 
 
@@ -122,7 +107,6 @@ public class Pokebot {
 	private static void getStatus() {
 
 		try {
-			
 			String pairs[] = spark.getLastMessage().split(",");
 
 			// get message pair - assuming it'll always be 3 heh
@@ -166,21 +150,17 @@ public class Pokebot {
 
 			if (msgBits[0].equals(botName) && msgBits[3].equals(otherBotName)) {
 
-				if (command.equals("get poked")) 
-				{
+				if (command.equals("get poked")) {
 					isPoked = true;
 				}
-				else if (command.equals("get poking")) 
-				{
+				else if (command.equals("get poking")) {
 					isPoked = false;
 				}
-				else 
-				{
+				else {
 					// again, my lazy but super smarts handling of stuff
 					System.out.println("getStatus can't actually do anything smart ..");
 					System.out.println("last message: ");
-					for ( String pair : pairs ) 
-					{
+					for ( String pair : pairs ) {
 						System.out.println(pair);
 					}
 					System.out.println("exiting ..");
@@ -189,21 +169,17 @@ public class Pokebot {
 			}
 			else if (msgBits[0].equals(otherBotName) && msgBits[3].equals(botName)) {
 
-				if (command.equals("get poked")) 
-				{
+				if (command.equals("get poked")) {
 					isPoked = false;
 				}
-				else if (command.equals("get poking")) 
-				{
+				else if (command.equals("get poking")) {
 					isPoked = true;
 				}
-				else 
-				{
+				else {
 					// again, my lazy but super smarts handling of stuff
 					System.out.println("getStatus can't actually do anything smart ..");
 					System.out.println("last message: ");
-					for ( String pair : pairs ) 
-					{
+					for ( String pair : pairs ) {
 						System.out.println(pair);
 					}
 					System.out.println("exiting ..");
@@ -211,13 +187,11 @@ public class Pokebot {
 				}
 			}
 		} 
-		catch (Exception e) 
-		{
+		catch (Exception e) {
 			System.out.println(e.getMessage());
 			System.out.println("exiting ..");
 			System.exit(1); // heh
 		}
-		
 	}// end getStatus
 
 
@@ -226,25 +200,22 @@ public class Pokebot {
 	 * Sends it in markdown so the tagging yoke works
 	 */
 	private static void sendPoke() {
-		
+
 		String otherBotEmail = otherBotName  + "@sparkbot.io";
 		String msgMarkdown = "<@personEmail:" + otherBotEmail 
 							+ "> get poked " + "<@personEmail:" 
 							+ botEmail + ">" ;
 		System.out.println("Markdown message to be sent: " 
 							+ msgMarkdown);
-		try 
-		{
+		try {
 			spark.sendMessage(msgMarkdown);
 		} 
-		catch (Exception e) 
-		{
+		catch (Exception e) {
 			System.out.println("sendPoke failed :");
 			System.out.println(e.getMessage());
 			System.out.println("Exiting ..");
 			System.exit(1);
 		}
-
 	}// end sendPoke
 
 
@@ -263,8 +234,7 @@ public class Pokebot {
 
 		System.out.println("chunks length: " + chunks.length );
 
-		if ( chunks.length != 4 ) 
-		{
+		if ( chunks.length != 4 ) {
 			System.out.println("Something has gone horribly astray");
 			System.out.println("deets.txt makes no sense, restart me when it does make sense");
 			System.out.println("throwing in the towel ..");
@@ -279,7 +249,5 @@ public class Pokebot {
 		botEmail = botName + "@sparkbot.io";
 		br.close();
 		fr.close();
-
 	}// end getDeets
-
 }// end everything
