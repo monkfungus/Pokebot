@@ -19,7 +19,6 @@ public class Spark {
 
 	// constructor 
 	public Spark(String rID, String bID) {
-
 		roomID = rID;
 		botID = bID;
 		auth = "Bearer " + botID;
@@ -32,7 +31,6 @@ public class Spark {
 	 * Calls getLastItem() to parse response from https connection
 	 */
 	public String getLastMessage() throws Exception {
-
 		String lastMessage;
 
 		// will get the last message from the roomID that the bot is mentioned in
@@ -61,7 +59,7 @@ public class Spark {
 	 */
 	public void sendMessage(String msg) throws Exception {
 		
-		// encode msg
+		// manually encode message
 		msg = msg.replace(" ", "%20");
 		msg = msg.replace("<", "%3C");
 		msg = msg.replace(">", "%3E");
@@ -71,10 +69,8 @@ public class Spark {
 		// build query
 		String query = "roomId=" + roomID + "&markdown=" + msg;
 		
-
 		URL urlObj = new URL(baseURL + "?" + query);
 		
-
 		HttpsURLConnection con = (HttpsURLConnection) urlObj.openConnection();
 
 		con.setDoOutput(true); // sets as POST
@@ -90,6 +86,7 @@ public class Spark {
 		System.out.println("Respone code: " + con.getResponseCode());
 	}
 	
+	
 	/*
 	 * Parses last item in json file and returns
 	 * Most receent message is at the top, so return
@@ -99,7 +96,6 @@ public class Spark {
 		// splitting input into 2 items, with the most recent
 		// message being itsms[0] and everything else being items[1]
 		String items[] = in.split(Pattern.quote("},{"), 2);
-
 		return items[0];
 	}
 }	
