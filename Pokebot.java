@@ -6,10 +6,13 @@
  * <roomID> : <botID> : <botName> : <otherBotName>
  */
 
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Scanner;
 import java.io.*;
+import javax.swing.*;
 
-public class Pokebot implements Runnable {
+public class Pokebot extends JFrame implements Runnable, ActionListener {
 
 	private Spark spark;
 	private boolean isPoked;
@@ -19,9 +22,12 @@ public class Pokebot implements Runnable {
 	private String roomID;
 	private String otherBotName;
 	private String filename;
+	private JPanel displayPanel;
+	private JButton pokeButton;
 
 	// constructor
 	public Pokebot() {
+		super("Pokebot");
 		filename = "deets.txt";
 		try {
 			getDeets();
@@ -35,12 +41,14 @@ public class Pokebot implements Runnable {
 							,roomID, botID, botName, otherBotName);
 		System.out.printf("Initialising veractor modulation feeds ... ");
 		spark = new Spark(roomID, botID);
+		initGUI();
 		System.out.println("done");
 		System.out.println();
 	}
 
 	// also constructor
 	public Pokebot(String filename) {
+		super("Pokebot");
 		this.filename = filename;
 		try {
 			getDeets();
@@ -54,12 +62,14 @@ public class Pokebot implements Runnable {
 							,roomID, botID, botName, otherBotName);
 		System.out.printf("Initialising veractor modulation feeds ... ");
 		spark = new Spark(roomID, botID);
+		initGUI();
 		System.out.println("done");
 		System.out.println();
 	}
 
 	// also also constructor
 	public Pokebot(String roomID, String botID, String botName, String otherBotName) {
+		super("Pokebot");
 		this.roomID = roomID;
 		this.botID = botID;
 		this.botName = botName;
@@ -70,77 +80,60 @@ public class Pokebot implements Runnable {
 							,roomID, botID, botName, otherBotName);
 		System.out.printf("Initialising veractor modulation feeds ... ");
 		spark = new Spark(roomID, botID);
+		initGUI();
 		System.out.println("done");
 		System.out.println();
 	}
 
-	
-	public void run() {
-		boolean validIn;
-		Scanner scan = new Scanner(System.in);
-		String input;
 
-		// infinite while loop
+	private void initGUI() {
+		Container container = getContentPane();
+		container.setLayout(new GridBagLayout());
+		GridBagConstraints constraints;
+
+		displayPanel = new JPanel();
+		constraints = new GridBagConstraints();
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.weightx = 1.0;
+		constraints.weighty = 1.0;
+		constraints.ipadx = 400;
+		constraints.ipady = 400;
+		container.add(displayPanel, constraints);
+
+		pokeButton = new JButton("Poke " + otherBotName);
+		constraints = new GridBagConstraints();
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.gridx = 0;
+		constraints.gridy = 1;
+		container.add(pokeButton, constraints);
+
+		pokeButton.addActionListener(this);
+		pokeButton.setEnabled(false);
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		pack();
+		setVisible(true);
+	}
+
+	// runs foreverish
+	public void run() {
 		while (true) {	
 			getStatus();
 			if (isPoked == true) {
-				System.out.println("You is poked - poke back? ");
-				validIn = false;
-				while (validIn == false) {
-					input = scan.nextLine();
-
-					if ((input.equals("y") == true) || (input.equals("Y") == true)) {
-						sendPoke();
-						System.out.println("You poked back!");
-						getStatus();
-						validIn = true; // exits input while
-					}
-					else if ((input.equals("n") == true) || (input.equals("N") == true)) {
-						System.out.println("Don't be such a dry shite");
-						System.out.print("TYPE Y TO POKE BACK U TOE ");
-					}
-					else {
-						System.out.println("try maybe i dunno like type something THIS CODE CAN UNDERSTAND U SPANNER");
-						System.out.print("like maybe say y or n or some such YANO LIKE");
-					}
-				}// end input while
+				pokeButton.setEnabled(true);
 			}
-			else { // isPoked must be false => am poking 
-					System.out.println("You is poking");
-					// another possibly infinite while - for to keep checking status until poked
-					System.out.printf("Refreshing  ");
-					while (!isPoked) {
-						try {
-							for (int count = 0; count < 4; count++) {
-								System.out.printf("\b|");
-								Thread.sleep(200);
-								System.out.printf("\b/");
-								Thread.sleep(200);
-								System.out.printf("\b-");
-								Thread.sleep(200);
-								System.out.printf("\b\\");
-								Thread.sleep(200);
-								System.out.printf("\b|");
-								Thread.sleep(200);
-								System.out.printf("\b/");
-								Thread.sleep(200);
-								System.out.printf("\b-");
-								Thread.sleep(200);
-								System.out.printf("\b\\");
-								Thread.sleep(200);
-							}
-						}
-						catch ( InterruptedException e ) {
-							System.out.println("Sleeping interrupted");
-							System.out.println(e.getMessage());
-							System.out.println("Exiting ..");
-							scan.close();
-							System.exit(1);
-						}
-						getStatus();
-					}
+			else {
+				pokeButton.setEnabled(false);
 			}
-		}// end embedded style while		
+			try {
+				Thread.sleep(4000);
+			} catch (InterruptedException e) {
+				System.out.println("run()'s sleeping interrupted:");
+				e.printStackTrace();
+			}
+		}	
 	}
 
 
@@ -310,4 +303,13 @@ public class Pokebot implements Runnable {
 		br.close();
 		fr.close();
 	}// end getDeets
+
+
+	public void actionPerformed(ActionEvent event) {
+		Object source = event.getSource();
+		if (source == pokeButton) {
+			sendPoke();
+			// need to make sure there is a pause between sending poke and getting status
+		}
+	}
 }// end everything
