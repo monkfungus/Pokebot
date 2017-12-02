@@ -54,23 +54,6 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 		
 	}
 
-	// also also constructor
-	public Pokebot(String roomID, String botID, String botName, String otherBotName) {
-		super("Pokebot");
-		this.roomID = roomID;
-		this.botID = botID;
-		this.botName = botName;
-		this.otherBotName = otherBotName;
-
-		System.out.println("Details of this bot:");
-		System.out.printf("roomID: %S\n botID: %s\n botName: %s\n otherBotName: %s\n"
-							,roomID, botID, botName, otherBotName);
-		System.out.printf("Initialising veractor modulation feeds ... ");
-		spark = new Spark(roomID, botID);
-		initGUI();
-		System.out.printf("done%n");
-	}
-
 
 	private void initGUI() {
 		Container container = getContentPane();
