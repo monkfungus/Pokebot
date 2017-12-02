@@ -29,20 +29,14 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 	public Pokebot() {
 		super("Pokebot");
 		filename = "deets.txt";
-		try {
-			getDeets();
-		} catch (IOException e) {
-			System.out.printf("Unable to load file %s: IOException\n", filename);
-			e.printStackTrace();
-			System.exit(-1);
-		}
+		getDeets();
 		System.out.println("Details of this bot:");
 		System.out.printf("roomID: %S\nbotID: %s\nbotName: %s\notherBotName: %s\n"
 							,roomID, botID, botName, otherBotName);
 		System.out.printf("Initialising veractor modulation feeds ... ");
 		spark = new Spark(roomID, botID);
 		initGUI();
-		System.out.println("done");
+		System.out.printf("done%n");
 		System.out.println();
 	}
 
@@ -50,21 +44,14 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 	public Pokebot(String filename) {
 		super("Pokebot");
 		this.filename = filename;
-		try {
-			getDeets();
-		} catch (IOException e) {
-			System.out.printf("Unable to load file %s: IOException\n", filename);
-			e.printStackTrace();
-			System.exit(-1);
-		}
+		getDeets();
 		System.out.println("Details of this bot:");
 		System.out.printf("roomID: %S\nbotID: %s\nbotName: %s\notherBotName: %s\n"
 							,roomID, botID, botName, otherBotName);
 		System.out.printf("Initialising veractor modulation feeds ... ");
 		spark = new Spark(roomID, botID);
 		initGUI();
-		System.out.println("done");
-		System.out.println();
+		
 	}
 
 	// also also constructor
@@ -81,8 +68,7 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 		System.out.printf("Initialising veractor modulation feeds ... ");
 		spark = new Spark(roomID, botID);
 		initGUI();
-		System.out.println("done");
-		System.out.println();
+		System.out.printf("done%n");
 	}
 
 
@@ -278,30 +264,31 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 	 * getDeets reads details from deets.txt. deets.txt is assumed to
 	 * be of structure "<roomID> : <botID> : <botName> : <otherBotName>"
 	 */
-	private void getDeets() throws FileNotFoundException, IOException {
+	private void getDeets() {
+		try (
+			FileReader fr = new FileReader(filename);
+			BufferedReader br = new BufferedReader(fr);
+		) {
+			String[] chunks = br.readLine().split(" : ");
 
-		FileReader fr = new FileReader(filename);
-		BufferedReader br = new BufferedReader(fr);
+			if ( chunks.length != 4 ) {
+				System.out.println("Something has gone horribly astray");
+				System.out.println("deets.txt makes no sense, restart me when it does make sense");
+				System.out.println("throwing in the towel ..");
+				System.exit(-11);
+			}
+			
+			roomID = chunks[0];
+			botID = chunks[1];
+			botName = chunks[2];
+			otherBotName = chunks[3];
 
-		String[] chunks = br.readLine().split(" : ");
-
-		//System.out.println("chunks length: " + chunks.length );
-
-		if ( chunks.length != 4 ) {
-			System.out.println("Something has gone horribly astray");
-			System.out.println("deets.txt makes no sense, restart me when it does make sense");
-			System.out.println("throwing in the towel ..");
-			System.exit(1);
+			botEmail = botName + "@sparkbot.io";
+		} catch (IOException e) {
+			System.out.printf("Unable to load file %s: IOException\n", filename);
+			e.printStackTrace();
+			System.exit(-1);
 		}
-		
-		roomID = chunks[0];
-		botID = chunks[1];
-		botName = chunks[2];
-		otherBotName = chunks[3];
-
-		botEmail = botName + "@sparkbot.io";
-		br.close();
-		fr.close();
 	}// end getDeets
 
 
