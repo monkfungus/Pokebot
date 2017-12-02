@@ -8,6 +8,7 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
 import javax.swing.*;
@@ -23,37 +24,53 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 	private String otherBotName;
 	private String filename;
 	private JPanel displayPanel;
+	private CardLayout displayPanelLayout;
 	private JButton pokeButton;
+	private Timer timer;
+	private ArrayList<String> pokingImages;
+	private ArrayList<String> pokedImages;
+	private int currentImage;
 
 	// constructor
 	public Pokebot() {
 		super("Pokebot");
 		filename = "deets.txt";
-		getDeets();
-		System.out.println("Details of this bot:");
-		System.out.printf("roomID: %S\nbotID: %s\nbotName: %s\notherBotName: %s\n"
-							,roomID, botID, botName, otherBotName);
-		System.out.printf("Initialising veractor modulation feeds ... ");
-		spark = new Spark(roomID, botID);
-		initGUI();
-		System.out.printf("done%n");
-		System.out.println();
+		init();
 	}
+
 
 	// also constructor
 	public Pokebot(String filename) {
 		super("Pokebot");
 		this.filename = filename;
+		init();
+	}
+
+	private void init() {
 		getDeets();
 		System.out.println("Details of this bot:");
 		System.out.printf("roomID: %S\nbotID: %s\nbotName: %s\notherBotName: %s\n"
 							,roomID, botID, botName, otherBotName);
 		System.out.printf("Initialising veractor modulation feeds ... ");
-		spark = new Spark(roomID, botID);
-		initGUI();
-		
-	}
 
+		spark = new Spark(roomID, botID);
+
+		pokedImages = new ArrayList<String>();
+		for (int count = 11; count <= 20; count++) {
+			pokedImages.add("image" + count);
+		}
+		pokingImages = new ArrayList<String>();
+		for (int count = 3; count <= 10; count++) {
+			pokingImages.add("image" + count);
+		}
+		currentImage = 0;
+
+		initGUI();
+
+		timer = new Timer(200, this);
+
+		System.out.printf("done%n");
+	}
 
 	private void initGUI() {
 		Container container = getContentPane();
@@ -61,17 +78,36 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 		GridBagConstraints constraints;
 
 		displayPanel = new JPanel();
+		displayPanelLayout = new CardLayout();
+		displayPanel.setLayout(displayPanelLayout);
 		constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.weightx = 1.0;
 		constraints.weighty = 1.0;
-		constraints.ipadx = 400;
-		constraints.ipady = 400;
+		//constraints.ipadx = 400;
+		//constraints.ipady = 400;
 		container.add(displayPanel, constraints);
 
-		pokeButton = new JButton("Poke " + otherBotName);
+		Icon tempIcon;
+		JPanel tempPanel;
+
+		for (String imageName : pokingImages) {
+			tempIcon = new ImageIcon("pokeImages/"+imageName+".png");
+            tempPanel = new JPanel();
+            tempPanel.add(new JLabel(tempIcon));
+            displayPanel.add(tempPanel, imageName);
+        }
+
+		for (String imageName : pokedImages) {
+			tempIcon = new ImageIcon("pokeImages/"+imageName+".png");
+            tempPanel = new JPanel();
+            tempPanel.add(new JLabel(tempIcon));
+            displayPanel.add(tempPanel, imageName);
+        }
+
+		pokeButton = new JButton("Poke");
 		constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridx = 0;
@@ -90,6 +126,7 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 	public void run() {
 		while (true) {	
 			getStatus();
+			timer.restart();
 			if (isPoked == true) {
 				pokeButton.setEnabled(true);
 			}
@@ -280,6 +317,29 @@ public class Pokebot extends JFrame implements Runnable, ActionListener {
 		if (source == pokeButton) {
 			sendPoke();
 			// need to make sure there is a pause between sending poke and getting status
+		} 
+		else if (source == timer) {
+			// check the status of isPoked, to decide which set of images to be displaying
+			if (isPoked) {// show "poked" sequence
+				if (currentImage < pokedImages.size()) {
+					displayPanelLayout.show(displayPanel, pokedImages.get(currentImage));
+					currentImage++;
+				}
+				else {
+					timer.stop();
+					currentImage = 0;
+				}
+			}
+			else {// show "poking" sequence
+				if (currentImage < pokingImages.size()) {
+					displayPanelLayout.show(displayPanel, pokingImages.get(currentImage));
+					currentImage++;
+				}
+				else {
+					timer.stop();
+					currentImage = 0;
+				}
+			}	
 		}
 	}
 }// end everything
