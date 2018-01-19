@@ -1,1 +1,1 @@
-<ID of room both bots are in> : <bot ID of bot this Pokebot is controlling> : <name of bot this Pokebot is controlling> : <name of bot you want to poke>
+channel : subscribeKkey : publishKey
