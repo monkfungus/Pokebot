@@ -6,3 +6,8 @@
 *Test.java
 msg
 .DS_Store
+/.metadata/
+.classpath
+.project
+LICENSE
+
